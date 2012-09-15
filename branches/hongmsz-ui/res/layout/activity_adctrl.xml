@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <TextView
+        android:id="@+id/textStat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/textdistL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/textdistR"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <ToggleButton
+                android:id="@+id/toggleButtonLED"
+                android:layout_width="75dp"
+                android:layout_height="70dp"
+                android:onClick="LeftTurn"
+                android:text="LEFT"
+                android:textSize="20px" />
+
+            <ToggleButton
+                android:id="@+id/togglelGo"
+                android:layout_width="75dp"
+                android:layout_height="70dp"
+                android:onClick="LeftGo"
+                android:text="LGO"
+                android:textSize="20px" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="140dp"
+            android:layout_weight="0.21"
+            android:orientation="vertical" >
+
+            <ToggleButton
+                android:id="@+id/toggleON"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:onClick="FrontGo"
+                android:text="FRONT"
+                android:textSize="20px" />
+
+            <ToggleButton
+                android:id="@+id/toggleStart"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:onClick="rStart"
+                android:text="GO"
+                android:textSize="20px" />
+
+            <ToggleButton
+                android:id="@+id/DC_PWR"
+                android:layout_width="fill_parent"
+                android:layout_height="40dp"
+                android:onClick="RearGo"
+                android:text="REAR"
+                android:textSize="20px" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical" >
+
+            <ToggleButton
+                android:id="@+id/DC_DIR"
+                android:layout_width="75dp"
+                android:layout_height="70dp"
+                android:onClick="RightTurn"
+                android:text="RIGHT"
+                android:textSize="20px" />
+
+            <ToggleButton
+                android:id="@+id/togglerGo"
+                android:layout_width="75dp"
+                android:layout_height="70dp"
+                android:onClick="RightGo"
+                android:text="RGO"
+                android:textSize="20px" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="R-Wheel" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/RW"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.81"
+            android:text="TextView" />
+
+        <Button
+            android:id="@+id/Rplus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.08"
+            android:text="+" />
+
+        <Button
+            android:id="@+id/Rminus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.08"
+            android:text="-" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="L-Wheel" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <TextView
+            android:id="@+id/LW"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.81"
+            android:text="TextView" />
+
+        <Button
+            android:id="@+id/Lplus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.08"
+            android:text="+" />
+
+        <Button
+            android:id="@+id/Lminus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.08"
+            android:text="-" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textDirect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/textIn1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/textIn2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+    
+    <TextView
+        android:id="@+id/textIn3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+    
+    <TextView
+        android:id="@+id/textIn4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+</LinearLayout>
