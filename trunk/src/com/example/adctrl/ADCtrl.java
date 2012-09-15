@@ -159,7 +159,6 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
     }
 
 	private View.OnClickListener on_init = new View.OnClickListener() {
-		@Override
 		public void onClick(View v) {
 			switch(v.getId()){
 			case R.id.Rplus:
@@ -349,7 +348,6 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		}
 	}
 	
-	@Override
 	public void run() {
 		int ret = 0;
 		byte[] buffer = new byte[16384];
@@ -651,7 +649,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		}
 	}
 	
-	@Override
+
 	public void onSensorChanged(SensorEvent event) { 
 		//*
 		    	
