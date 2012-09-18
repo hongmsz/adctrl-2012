@@ -572,7 +572,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		 
 		byte[] buffer = new byte[5];	//command, target, value
  
-		if(buttonLED.isChecked()){
+		if(buttonL.isChecked()){
 			buffer[0]=(byte)0x2; 
 			buffer[1]=(byte)0x6; 
 			buffer[2]=(byte)0; // button says on, light is off
@@ -599,7 +599,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		 
 		byte[] buffer = new byte[5];	//command, target, value
  		
-		if(buttonDIR.isChecked()){
+		if(buttonR.isChecked()){
 			buffer[0]=(byte)0x2; 
 			buffer[1]=(byte)0x7; 
 			buffer[2]=(byte)0; // button says on, DIR is front
