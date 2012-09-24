@@ -25,6 +25,7 @@
 				android:resource="@xml/accessory_filter" />
         </activity>
         <uses-library android:name="com.android.future.usb.accessory" android:required="true"/>
+        <activity android:name="MapGen"></activity>
     </application>
 
 </manifest>
