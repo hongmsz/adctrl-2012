@@ -25,8 +25,11 @@ import android.content.IntentFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 import android.support.v4.app.NavUtils;
@@ -39,8 +42,12 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
  
 	private SensorManager sensorManager;
 	private Sensor Magnet;
-	private float x, y, z, gx, gy, gz;
-	
+	private float x, y, z, gx, gy, gz, tmp_dir=0.0f, r_dir, m_dir;
+	float x1, y1, x2, y2;
+	long cnt=0;
+
+	Intent nView;
+
 	private UsbManager mUsbManager;
 	private PendingIntent mPermissionIntent;
 	private boolean mPermissionRequestPending;
@@ -48,22 +55,26 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	private TextView _TextView = null;
 	private TextView _TextView2 = null;
 	private Button Rp, Lp, Rm, Lm;
+	private LinearLayout LL;
 	
+	int press_b = 0;
+
 	int push_ch = 0;
-	
+
+	int distA = 0, tmpDist, totalDist = 0;
+
 	long currentTime, lastTime;
-	
 
 	char tmp;
 	int value, distR, distL, stat;
-	
+
 	private TextView mResponseField = null, 
 			mResponseField1 = null, 
 			mResponseField2 = null, 
 			mResponseField3 = null, 
 			mDirect = null;
 	private TextView curS = null, distR_U=null, distL_U = null;
-	
+
 	float Rspd = 0.0f, Lspd = 0.0f;
 
 	UsbAccessory mAccessory;
@@ -95,10 +106,12 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 			}
 		}
 	};
-	
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	super.onCreate(savedInstanceState);
+    	
+    	nView = new Intent(this, MapGen.class);
     	 
 		lastTime = System.currentTimeMillis(); 
 		
@@ -118,6 +131,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		
         setContentView(R.layout.activity_adctrl);
         
+        LL = (LinearLayout)findViewById(R.id.layoutM);
 
 //		curS = null, distR_U=null, distL_U = null;
 		curS = (TextView) findViewById(R.id.textStat);
@@ -141,7 +155,23 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		Rp.setOnClickListener(on_init);
 		Rm.setOnClickListener(on_init);
 		Lp.setOnClickListener(on_init);
-		Lm.setOnClickListener(on_init);		
+		Lm.setOnClickListener(on_init);
+		
+		LL.setOnTouchListener(new OnTouchListener(){
+        	public boolean onTouch(View arg0, MotionEvent event) {               
+        		if (event.getAction() == MotionEvent.ACTION_DOWN) {
+        			x1=event.getX();
+        			y1=event.getY();
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                	x2=event.getX();
+					y2=event.getY();
+					
+					if(x2 - x1 > 20)
+						startActivity(nView);					
+                }
+ 				return true;
+        }});
 		
 		_TextView.setTextSize(30);
 		_TextView2.setTextSize(30);
@@ -198,7 +228,6 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
             sensorManager.registerListener(this, Magnet, 
 //                    SensorManager.SENSOR_DELAY_GAME);
             		SensorManager.SENSOR_DELAY_NORMAL);
-    	
     }
     
     @Override
@@ -258,6 +287,18 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 			switch(t.getFlag()){
 			case 'A':
 				mResponseField.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
+				switch(stat){
+				case 1:
+					distA = t.getReading() - totalDist;				// 이동 거리 계산
+					break;
+				case 4:
+					distA = (t.getReading() - totalDist)*(-1);				// 이동 거리 계산
+					break;
+				default:
+					distA = 0;				// 이동 거리 계산
+					break;
+				}
+				totalDist = t.getReading(); 
 				break;
 			case 'B':
 				mResponseField1.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
@@ -456,7 +497,6 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	}
 
 	public void FrontGo(View v){
- 
 		byte[] buffer = new byte[5];
 		
 		if(buttonON.isChecked()){
@@ -488,7 +528,6 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 
 	
 	public void RearGo(View v){
-		 
 		byte[] buffer = new byte[5];	//command, target, value
  		
 		if(buttonPWR.isChecked()){
@@ -515,7 +554,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	}
 	
 	public void LeftTurn(View v){
-		 
+		
 		byte[] buffer = new byte[5];	//command, target, value
  
 		if(buttonLED.isChecked()){
@@ -623,16 +662,19 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	}
 	
 	public void rStart(View v){
-		 
 		byte[] buffer = new byte[5];	//command, target, value
  
 		if(buttonGO.isChecked()){
+			press_b = 1;
+			
 			buffer[0]=(byte)0x2; 
 			buffer[1]=(byte)0x5; 
 			buffer[2]=(byte)0; // button says on, light is off
 			buffer[3]=(byte)0;
 			buffer[4]=(byte)0;
 		}else{
+			press_b = 0;
+			
 			buffer[0]=(byte)0x2; 
 			buffer[1]=(byte)0x5;
 			buffer[2]=(byte)1; // button says off, light is on
@@ -648,33 +690,55 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 			}
 		}
 	}
-	
 
-	public void onSensorChanged(SensorEvent event) { 
-		//*
-		    	
-		    	if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-		                gx = event.values[SensorManager.DATA_X]; 
-		                gy = event.values[SensorManager.DATA_Y]; 
-		                gz = event.values[SensorManager.DATA_Z];  
-		                
-		        } 
-		    	
-		    	//Float.parseFloat(_et.getText().toString()+"f");
-		    			    	
-//		    	_TextView.setText(weather);
-		//*    	
-		    	mDirect.setText( 
-		    			String.format(
-		    					"Direction\nx: %f\ny: %f\nz: %f\n\n", 
-		    					gx, gy, gz
-		    			)
-		    	);
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+			gx = event.values[SensorManager.DATA_X];
+			gy = event.values[SensorManager.DATA_Y];
+			gz = event.values[SensorManager.DATA_Z];
+		} 
+
+//		Float.parseFloat(_et.getText().toString()+"f");
+//		_TextView.setText(weather);
+
+//*    	
+		mDirect.setText( String.format( "Direction\nx: %f\ny: %f\nz: %f\n\n", gx, gy, gz) );
+		
+		r_dir = gx - tmp_dir;
+		if(r_dir < -180)
+			m_dir = r_dir+360;
+		else if(r_dir > 180)
+			m_dir = r_dir-360;
+		else 
+			m_dir = r_dir;
+		
+		tmp_dir = gx;
+
+		String ch_op;
+		if(	press_b == 1 && Math.abs(distA) > 0 ){
+//			cnt++;
+			if(distA < 0){
+				if(180 + m_dir > 180)
+					ch_op ="<dir=" + (m_dir - 180) + ", dist=" + (distA*(-1)) + "/>\n";
+				else
+					ch_op ="<dir=" + (180 - m_dir) + ", dist=" + (distA*(-1)) + "/>\n";
+			}else
+				ch_op ="<dir=" + m_dir + ", dist=" + distA + "/>\n";
+
+			try{
+				FileOutputStream out = openFileOutput("op1.txt",Context.MODE_APPEND);
+				out.write(ch_op.getBytes());
+				out.close();
+			}
+			catch (IOException ioe){
+				System.out.print("Can't Write");
+			}
+		}
 		//*/
-		    }
-	
+	}
+
 	public void setV(float Rspd, float Lspd){
-		 
+
 		byte[] buffer = new byte[5];
  
 		buffer[0]=(byte)0x2; 
