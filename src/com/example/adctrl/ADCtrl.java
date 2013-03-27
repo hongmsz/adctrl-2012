@@ -36,13 +36,20 @@ import android.support.v4.app.NavUtils;
 
 public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 
+	final int S_num = 51;
+	QuickSort sorter = new QuickSort();
+
+	int Tcnt = 0;
+	float[] Gyro2 = new float[S_num]; 
+	float[] Dir2 = new float[S_num]; 
+	
 	private static final String TAG = "ArduinoAccessory";
 	 
 	private static final String ACTION_USB_PERMISSION = "com.google.android.DemoKit.action.USB_PERMISSION";
  
-	private SensorManager sensorManager;
-	private Sensor Magnet;
-	private float x, y, z, gx, gy, gz, tmp_dir=0.0f, r_dir, m_dir;
+	private SensorManager sensorManager, sensorManager1;
+	private Sensor Magnet, Gyro;
+	private float x, y, z, gx, gy, gz, gx1, gy1, gz1, tmp_dir=0.0f, r_dir, m_dir, tmp_gx1 = 0f;
 	float x1, y1, x2, y2;
 	long cnt=0;
 
@@ -57,16 +64,12 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	private Button Rp, Lp, Rm, Lm;
 	private LinearLayout LL;
 	
-	int press_b = 0;
-
-	int push_ch = 0;
-
-	int distA = 0, tmpDist, totalDist = 0;
+	int press_b = 0, push_ch = 0, distA = 0, distB = 0, tmpDist, totalDist = 0, get_stat = 0;
 
 	long currentTime, lastTime;
 
 	char tmp;
-	int value, distR, distL, stat;
+	int value, distR, distL, stat, Mangle;
 
 	private TextView mResponseField = null, 
 			mResponseField1 = null, 
@@ -128,6 +131,8 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
  
 		sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		Magnet = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+		sensorManager1 = (SensorManager) getSystemService(SENSOR_SERVICE);
+		Gyro = sensorManager1.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 		
         setContentView(R.layout.activity_adctrl);
         
@@ -144,7 +149,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		buttonGO =  (ToggleButton) findViewById(R.id.toggleStart);
 		buttonL = (ToggleButton) findViewById(R.id.togglelGo);
 		buttonR =  (ToggleButton) findViewById(R.id.togglerGo);
-
+/*
 		_TextView = (TextView) findViewById(R.id.RW);
 		_TextView2 = (TextView) findViewById(R.id.LW);
 		Rp = (Button) findViewById(R.id.Rplus);
@@ -156,7 +161,7 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 		Rm.setOnClickListener(on_init);
 		Lp.setOnClickListener(on_init);
 		Lm.setOnClickListener(on_init);
-		
+*/		
 		LL.setOnTouchListener(new OnTouchListener(){
         	public boolean onTouch(View arg0, MotionEvent event) {               
         		if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -172,13 +177,13 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
                 }
  				return true;
         }});
-		
+/*		
 		_TextView.setTextSize(30);
 		_TextView2.setTextSize(30);
 		
 		 _TextView.setText(Float.toString(Rspd));
 		 _TextView2.setText(Float.toString(Lspd));
-		 
+*/		 
 		 mDirect = (TextView)findViewById(R.id.textDirect);
 		 mResponseField = (TextView)findViewById(R.id.textIn1);
 		 mResponseField1 = (TextView)findViewById(R.id.textIn2);
@@ -226,8 +231,15 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
     	
     	if (Magnet != null) 
             sensorManager.registerListener(this, Magnet, 
-//                    SensorManager.SENSOR_DELAY_GAME);
-            		SensorManager.SENSOR_DELAY_NORMAL);
+//					SensorManager.SENSOR_DELAY_GAME);
+//            		SensorManager.SENSOR_DELAY_NORMAL);
+            		SensorManager.SENSOR_DELAY_FASTEST);
+    	
+    	if (Gyro != null) 
+            sensorManager1.registerListener(this, Gyro, 
+//					SensorManager.SENSOR_DELAY_GAME);
+//            		SensorManager.SENSOR_DELAY_NORMAL);
+            		SensorManager.SENSOR_DELAY_FASTEST);
     }
     
     @Override
@@ -236,6 +248,8 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
     	
     	if (sensorManager != null) 
             sensorManager.unregisterListener(this);
+    	if (sensorManager1 != null) 
+            sensorManager1.unregisterListener(this);
     }
     
     public void onAccuracyChanged(Sensor sensor, int accuracy) { 
@@ -286,27 +300,37 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 			// this is where you handle the data you sent. You get it by calling the getReading() function
 			switch(t.getFlag()){
 			case 'A':
-				mResponseField.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
+				get_stat = 0;
+				mResponseField.setText("L_Motor: "+t.getFlag()+"\nL_Rot_num: "+t.getReading());
+				distA = t.getReading();				// 이동 거리 계산
+//				mResponseField.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
+/*				
 				switch(stat){
 				case 1:
-					distA = t.getReading() - totalDist;				// 이동 거리 계산
+					distA = t.getReading();				// 이동 거리 계산
 					break;
 				case 4:
-					distA = (t.getReading() - totalDist)*(-1);				// 이동 거리 계산
+					distA = 0 - t.getReading();				// 이동 거리 계산
 					break;
 				default:
 					distA = 0;				// 이동 거리 계산
 					break;
 				}
-				totalDist = t.getReading(); 
+*/				
+//				totalDist = t.getReading(); 
 				break;
 			case 'B':
-				mResponseField1.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
+				get_stat = 0;
+//				mResponseField1.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
+				mResponseField.setText("R_Motor: "+t.getFlag()+"\nR_Rot_num: "+t.getReading());
+				distB=t.getReading();
 				break;
 			case 'C':
+				get_stat = 0;
 				mResponseField2.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
 				break;
 			case 'D':
+				get_stat = 0;
 				mResponseField3.setText("Motor: "+t.getFlag()+"\nRot_num: "+t.getReading());
 				break;
 			case 'U':
@@ -467,6 +491,14 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 								hi = buffer[i+3];
 //								lo = buffer[i+3];
 								stat = hi & 0xff;
+								break;
+							case 0x7:
+								tmp = 'T';
+								hi = buffer[i+3];
+								lo = buffer[i+4];
+								Mangle = hi & 0xff;
+								Mangle *= 256;
+								Mangle += lo & 0xff;
 								break;
 						}
 						// 'f' is the flag, use for your own logic
@@ -692,39 +724,92 @@ public class ADCtrl extends Activity implements Runnable, SensorEventListener {
 	}
 
 	public void onSensorChanged(SensorEvent event) {
+		
+//나침반 센서
+//*		
 		if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
 			gx = event.values[SensorManager.DATA_X];
 			gy = event.values[SensorManager.DATA_Y];
 			gz = event.values[SensorManager.DATA_Z];
 		} 
+		
+		Tcnt = 0;
 
+		while(Tcnt < S_num){
+			Dir2[Tcnt] = 0;
+			Tcnt++;
+		}
+		
+		Tcnt = 0;
+		
+		while(Tcnt < S_num){
+			Dir2[Tcnt] = (int)(gx*100)/100;
+			Tcnt++;
+		}
+		
+		sorter.sort(Dir2, S_num);
+//*/
+		
+// Gyro 센서 
+/*		
+		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+			gx1 = event.values[0];
+			gy1 = event.values[1];
+			gz1 = event.values[2];
+		} 
+		
+		Tcnt = 0;
+
+		while(Tcnt < S_num){
+			Gyro2[Tcnt] = 0;
+			Tcnt++;
+		}
+		
+		Tcnt = 0;
+		
+		while(Tcnt < S_num){
+			Gyro2[Tcnt] = gz1;
+			Tcnt++;
+		}
+		
+		sorter.sort(Gyro2, S_num);
+		
 //		Float.parseFloat(_et.getText().toString()+"f");
 //		_TextView.setText(weather);
 
-//*    	
-		mDirect.setText( String.format( "Direction\nx: %f\ny: %f\nz: %f\n\n", gx, gy, gz) );
-		
-		r_dir = gx - tmp_dir;
-		if(r_dir < -180)
-			m_dir = r_dir+360;
-		else if(r_dir > 180)
-			m_dir = r_dir-360;
-		else 
-			m_dir = r_dir;
-		
-		tmp_dir = gx;
+		tmp_gx1 += (int)(Gyro2[S_num/2]*100)/100;
+*/		
+//*
+		r_dir = Dir2[S_num/2] - tmp_dir;
+
+// Gyro 센서값 표시		
+//		mDirect.setText( String.format( "Direction\nx: %.2f\n\nGyro\nx: %.2f\nGyro(mod)\nx: %.2f\n\n", Dir2[S_num/2], gz1, tmp_gx1) );
+		mDirect.setText( String.format( "Direction\nx: %.2f\n", Dir2[S_num/2]) );
 
 		String ch_op;
 		if(	press_b == 1 && Math.abs(distA) > 0 ){
+			
+			if(r_dir < -180)
+				m_dir = r_dir+360;
+			else if(r_dir > 180)
+				m_dir = r_dir-360;
+			else 
+				m_dir = r_dir;
+			
+			tmp_dir = Dir2[S_num/2];
+			
 //			cnt++;
+/*			
 			if(distA < 0){
 				if(180 + m_dir > 180)
-					ch_op ="<dir=" + (m_dir - 180) + ", dist=" + (distA*(-1)) + "/>\n";
+					ch_op ="<dir3=" + Mangle + ", dir2=" + tmp_gx1 + ", dir=" + (m_dir - 180) + ", dist=" + (distA*(-1)) + "/>\n";
 				else
-					ch_op ="<dir=" + (180 - m_dir) + ", dist=" + (distA*(-1)) + "/>\n";
+					ch_op ="<dir3=" + Mangle + ", dir2=" + tmp_gx1 + ", dir=" + (180 - m_dir) + ", dist=" + (distA*(-1)) + "/>\n";
 			}else
-				ch_op ="<dir=" + m_dir + ", dist=" + distA + "/>\n";
-
+				ch_op ="<dir3=" + Mangle + ", dir2=" + tmp_gx1 + ", dir=" + m_dir + ", dist=" + distA + "/>\n";
+*/
+			ch_op = "A:"+distA+" B:"+distB+" L:"+ distL+" R:"+distR+" dir:" + m_dir +"\n";
+			
 			try{
 				FileOutputStream out = openFileOutput("op1.txt",Context.MODE_APPEND);
 				out.write(ch_op.getBytes());

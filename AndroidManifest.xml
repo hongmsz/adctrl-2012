@@ -12,7 +12,7 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name=".ADCtrl"
-            android:label="@string/title_activity_adctrl" >
+            android:label="@string/title_activity_adctrl" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,7 +25,7 @@
 				android:resource="@xml/accessory_filter" />
         </activity>
         <uses-library android:name="com.android.future.usb.accessory" android:required="true"/>
-        <activity android:name="MapGen"></activity>
+        <activity android:name="MapGen" android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>
